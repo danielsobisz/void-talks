@@ -1,17 +1,26 @@
-import { Confession } from "../types/confession";
-import { randomUUID } from "crypto";
+import { PrismaClient } from "../generated/prisma/client";
 
-const confessions: Confession[] = [];
+const prisma = new PrismaClient();
 
-export const createConfession = (content: string): Confession => {
-  const newConfession: Confession = {
-    id: randomUUID(),
-    content,
-    createdAt: new Date(),
-  };
+export const createConfession = async (content: string) => {
+  const confession = await prisma.confession.create({
+    data: { content },
+  });
 
-  confessions.push(newConfession);
-  return newConfession;
+  return confession;
 };
 
-export const getAllConfessions = (): Confession[] => confessions;
+export const getAllConfessions = async () => {
+  return prisma.confession.findMany();
+};
+
+async function testConnection() {
+  try {
+    await prisma.$connect();
+    console.log("Connected to DB");
+  } catch (e) {
+    console.error("Cannot connect to DB", e);
+  }
+}
+
+testConnection();
