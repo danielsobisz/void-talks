@@ -9,7 +9,6 @@ const port = 8080;
 
 app.use(express.json());
 app.use(helmet());
-
 app.use(cors({ origin: [process.env.APP_URL] }));
 
 app.use(

@@ -1,31 +1,47 @@
-version: "3.8"
+version: "3.7"
 
 services:
   postgres:
-    image: postgres:16
-    container_name: void-talks-postgres
+    container_name: postgres
+    image: postgres:15
+    restart: always
     environment:
-      POSTGRES_USER: voiduser
-      POSTGRES_PASSWORD: voidpass
-      POSTGRES_DB: voidtalks
+      - POSTGRES_DB=voidtalks
+      - POSTGRES_USER=voiduser
+      - POSTGRES_PASSWORD=voidpass
     ports:
       - "5432:5432"
+    networks:
+      - prisma-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voiduser -d voidtalks"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
-      - pgdata:/var/lib/postgresql/data
-
+      - postgres_data:/var/lib/postgresql/data
+    command: postgres -c listen_addresses='*'
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
   node:
     build: .
     container_name: void-talks-node
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: sh -c "npx prisma generate && npm run dev"
-    environment:
-      DATABASE_URL: "postgresql://voiduser:voidpass@postgres:5432/voidtalks"
+    command: >
+      sh -c "npm run dev"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
+    networks:
+      - prisma-network
+
+networks:
+  prisma-network:
 
 volumes:
-  pgdata:
+  postgres_data:
