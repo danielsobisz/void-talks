@@ -11,6 +11,8 @@ export default function Home() {
   const [post, setPost] = useState<string>("");
   const [token, setToken] = useState<string>("");
 
+  console.log("SITE KEY:", process.env.SITE_KEY);
+
   const { mutateAsync } = useMutation({
     mutationKey: ["submit_post"],
     mutationFn: async () => {
@@ -38,7 +40,7 @@ export default function Home() {
       <Wall />
 
       <HCaptcha
-        sitekey={process.env.SITE_KEY!}
+        sitekey={"10000000-ffff-ffff-ffff-000000000001"}
         onVerify={(token, ekey) => handleVerificationSuccess(token, ekey)}
       />
 

@@ -25,8 +25,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  node:
-    build: .
+  backend:
+    build: ./backend
     container_name: void-talks-node
     command: >
       sh -c "npm run dev"
@@ -39,6 +39,14 @@ services:
       - "8080:8080"
     networks:
       - prisma-network
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: "http://localhost:8080"
 
 networks:
   prisma-network:
