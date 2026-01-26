@@ -7,6 +7,7 @@ import { verifyCaptcha } from "../utils/verifyCaptcha";
 
 export const postConfession = async (req: Request, res: Response) => {
   const { content, captchaToken } = req.body;
+  console.log(req.headers);
 
   if (!content?.trim() || typeof content !== "string") {
     return res.status(400).json({ error: "Content is required" });

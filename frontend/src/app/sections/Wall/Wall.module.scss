@@ -1,6 +1,21 @@
 .wall {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  justify-items: center;
-  align-items: center;
+  column-count: 3;
+  column-gap: 16px;
+  // display: grid;
+  // grid-template-columns: repeat(3, fit-content(400px));
+  // gap: 15px;
+  // justify-items: center;
+  // align-items: center;
+  // justify-content: center;
+  // align-items: flex-start;
+  max-width: 1250px;
+  width: 100%;
+}
+
+.wallOuter {
+  // padding: 16px;
+  display: flex;
+  width: 100%;
+
+  justify-content: center;
 }

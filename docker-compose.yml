@@ -29,7 +29,16 @@ services:
     build: ./backend
     container_name: void-talks-node
     command: >
-      sh -c "npm run dev"
+      sh -c "
+        npx prisma migrate deploy &&
+        npm run dev
+      "
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,12 +50,17 @@ services:
       - prisma-network
   frontend:
     build: ./frontend
+    container_name: void-talks-frontend
+    command: npm run dev
     ports:
-      - "5173:5173"
-    depends_on:
-      - backend
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     environment:
-      VITE_API_URL: "http://localhost:8080"
+      NEXT_PUBLIC_API_URL: "http://backend:8080"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
 
 networks:
   prisma-network:

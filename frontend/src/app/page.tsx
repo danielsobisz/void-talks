@@ -1,51 +1,15 @@
 "use client";
-import Image from "next/image";
 import styles from "./page.module.css";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
-import { useState } from "react";
+
 import { Wall } from "./sections/Wall/Wall";
+import { CreateNewPost } from "../components/CreateNewPost/CreateNewPost";
 
 export default function Home() {
-  const [post, setPost] = useState<string>("");
-  const [token, setToken] = useState<string>("");
-
-  console.log("SITE KEY:", process.env.SITE_KEY);
-
-  const { mutateAsync } = useMutation({
-    mutationKey: ["submit_post"],
-    mutationFn: async () => {
-      const res = await axios.post("http://localhost:8080/confessions", {
-        content: post,
-        captchaToken: token,
-      });
-
-      console.log(res);
-    },
-  });
-
-  const handleVerificationSuccess = (token: any, eKey: any) => {
-    setToken(token);
-    console.log(token);
-    console.log(eKey);
-  };
-
-  const submitPost = () => {
-    mutateAsync();
-  };
-
   return (
     <div className={styles.page}>
+      <CreateNewPost />
+
       <Wall />
-
-      <HCaptcha
-        sitekey={"10000000-ffff-ffff-ffff-000000000001"}
-        onVerify={(token, ekey) => handleVerificationSuccess(token, ekey)}
-      />
-
-      <input onChange={(e) => setPost(e.target.value)} value={post} />
-      <button onClick={submitPost}>submit</button>
     </div>
   );
 }
