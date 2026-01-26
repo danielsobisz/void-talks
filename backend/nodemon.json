@@ -1,0 +1,7 @@
+{
+  "watch": ["src", "prisma"],
+  "ext": "js,json,prisma",
+  "ignore": ["node_modules"],
+  "legacyWatch": true,
+  "exec": "node src/index.js"
+}
