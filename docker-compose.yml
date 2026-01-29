@@ -14,7 +14,7 @@ services:
     networks:
       - prisma-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U voiduser -d voidtalks"]
+      test: [ "CMD-SHELL", "pg_isready -U voiduser -d voidtalks" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -34,8 +34,7 @@ services:
         npm run dev
       "
     volumes:
-      - ./src:/app/src
-      - ./prisma:/app/prisma
+      - ./backend:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -58,7 +57,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      NEXT_PUBLIC_API_URL: "http://backend:8080"
+      NEXT_PUBLIC_API_URL: "http://localhost:8080"
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
 
