@@ -1,10 +1,10 @@
-import express from "express";
-import {listConfessions, postConfession, postConfessionThread,} from "../controllers/confession.controller";
+import {listConfessions, postConfession} from "../controllers/confession.controller";
+import express, {Router} from "express";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.get("/", listConfessions);
 router.post("/", postConfession);
-router.post("/:id", postConfessionThread);
+
 
 export default router;

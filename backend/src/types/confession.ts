@@ -1,3 +1,5 @@
+import {Thread} from "./threads";
+
 export interface Confession {
     id: string;
     content: string;
@@ -5,8 +7,3 @@ export interface Confession {
     thread: Thread[];
 }
 
-export interface Thread {
-    id: string;
-    content: string;
-    createdAt: Date;
-}

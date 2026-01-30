@@ -1,11 +1,10 @@
 import {Request, Response} from "express";
-import {createConfession, createConfessionThreadItem, getAllConfessions} from "../services/confession.service";
+import {createConfession, getAllConfessions} from "../services/confession.service";
 import {verifyCaptcha} from "../utils/verifyCaptcha";
 
-export const postConfession = async (req: Request, res: Response) => {
+export const postConfession = async (req: Request, res: Response): Promise<Response> => {
     const {content} = req.body;
     const captchaToken = req.headers["hcaptcha-token"] as string;
-    console.log(req.headers);
 
     if (!content?.trim() || typeof content !== "string") {
         return res.status(400).json({error: "Content is required"});
@@ -26,7 +25,7 @@ export const postConfession = async (req: Request, res: Response) => {
     }
 };
 
-export const listConfessions = async (_req: Request, res: Response) => {
+export const listConfessions = async (_req: Request, res: Response): Promise<Response> => {
     try {
         const all = await getAllConfessions();
         return res.json(all);
@@ -36,19 +35,3 @@ export const listConfessions = async (_req: Request, res: Response) => {
     }
 };
 
-export const postConfessionThread = async (req: Request, res: Response) => {
-    // console.log('its here', req);
-    const {content} = req.body;
-    const id = req.params.id;
-
-    try {
-        const thread = await createConfessionThreadItem(id, content)
-        return res.status(201).json(thread);
-    } catch {
-        console.error('err')
-    }
-
-    if (!content.trim() || typeof content !== "string") {
-        return res.status(400).json({error: "Content is required"});
-    }
-};
