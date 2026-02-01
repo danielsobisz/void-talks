@@ -6,6 +6,7 @@ export const postConfession = async (req: Request, res: Response): Promise<Respo
     const {content} = req.body;
     const captchaToken = req.headers["hcaptcha-token"] as string;
 
+
     if (!content?.trim() || typeof content !== "string") {
         return res.status(400).json({error: "Content is required"});
     }

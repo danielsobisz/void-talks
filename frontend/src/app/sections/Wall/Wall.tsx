@@ -1,35 +1,31 @@
-import { Post } from "@/components/Post/Post";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { FC } from "react";
+import {Post} from "@/components/Post/Post";
+import {useQuery} from "@tanstack/react-query";
+import {FC} from "react";
 
 import styles from "./Wall.module.scss";
+import {getAllConfessions} from "@/services/confessions.service";
 
 type PostType = {
-  id: string;
-  content: string;
-  createdAt: string;
+    id: string;
+    content: string;
+    createdAt: string;
 };
 
 export const Wall: FC = () => {
-  const { data } = useQuery({
-    queryKey: ["CONFESSIONS"],
-    queryFn: async () => {
-      const res = await axios.get<PostType[]>(
-        "http://localhost:8080/confessions",
-      );
+    const {data} = useQuery({
+        queryKey: ["CONFESSIONS"],
+        queryFn: async () => {
+            return await getAllConfessions();
+        },
+    });
 
-      return res;
-    },
-  });
-
-  return (
-    <div className={styles.wallOuter}>
-      <div className={styles.wall}>
-        {data?.data.map((item) => (
-          <Post key={item.id}>{item.content}</Post>
-        ))}
-      </div>
-    </div>
-  );
+    return (
+        <div className={styles.wallOuter}>
+            <div className={styles.wall}>
+                {data?.map((item) => (
+                    <Post key={item.id}>{item.content}</Post>
+                ))}
+            </div>
+        </div>
+    );
 };
