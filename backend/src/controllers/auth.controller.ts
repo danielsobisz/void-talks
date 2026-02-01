@@ -11,47 +11,45 @@ const PRIVATE_KEY = readFileSync(
   "utf8",
 );
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-): Promise<Response> => {
-  const { username, password } = req.body;
+class AuthController {
+  async registerUser(req: Request, res: Response): Promise<Response> {
+    const { username, password } = req.body;
 
-  if (authRepository.isUserExistByUsername(username.toLocaleLowerCase())) {
-    return res.status(400).json({ error: "Username already taken" });
+    if (authRepository.isUserExistByUsername(username.toLocaleLowerCase())) {
+      return res.status(400).json({ error: "Username already taken" });
+    }
+
+    const user = await authService.createUser({ username, password });
+
+    return res.status(201).json(user);
   }
 
-  const user = await authService.createUser({ username, password });
+  async loginUser(req: Request, res: Response): Promise<Response> {
+    const { username, password } = req.body;
 
-  return res.status(201).json(user);
-};
+    if (
+      await authRepository.isUserExistByUsername(username.toLocaleLowerCase())
+    ) {
+      return res.status(400).json({ error: "Authentication failed" });
+    }
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-): Promise<Response> => {
-  const { username, password } = req.body;
+    const user = await authRepository.getUserByUsername(
+      username.toLocaleLowerCase(),
+    );
 
-  if (
-    await authRepository.isUserExistByUsername(username.toLocaleLowerCase())
-  ) {
-    return res.status(400).json({ error: "Authentication failed" });
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: "Authentication failed" });
+    }
+
+    const token = jwt.sign({ username }, PRIVATE_KEY, {
+      expiresIn: "1h",
+      algorithm: "RS256",
+    });
+
+    return res.status(200).json({ message: "Login successfull", token });
   }
+}
 
-  const user = await authRepository.getUserByUsername(
-    username.toLocaleLowerCase(),
-  );
-
-  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-
-  if (!isPasswordValid) {
-    return res.status(400).json({ error: "Authentication failed" });
-  }
-
-  const token = jwt.sign({ username }, PRIVATE_KEY, {
-    expiresIn: "1h",
-    algorithm: "RS256",
-  });
-
-  return res.status(200).json({ message: "Login successfull", token });
-};
+export const authController = new AuthController();

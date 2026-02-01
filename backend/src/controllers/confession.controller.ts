@@ -1,38 +1,40 @@
-import {Request, Response} from "express";
-import {createConfession, getAllConfessions} from "../services/confession.service";
-import {verifyCaptcha} from "../utils/verifyCaptcha";
+import { Request, Response } from "express";
+import { verifyCaptcha } from "../utils/verifyCaptcha";
+import { confessionService } from "src/services/confession.service";
 
-export const postConfession = async (req: Request, res: Response): Promise<Response> => {
-    const {content} = req.body;
+class ConfessionController {
+  async createConfession(req: Request, res: Response): Promise<Response> {
+    const { content } = req.body;
     const captchaToken = req.headers["hcaptcha-token"] as string;
 
-
     if (!content?.trim() || typeof content !== "string") {
-        return res.status(400).json({error: "Content is required"});
+      return res.status(400).json({ error: "Content is required" });
     }
 
     const validCaptcha = await verifyCaptcha(captchaToken);
 
     if (!validCaptcha) {
-        return res.status(403).json({error: "Wrong captcha"});
+      return res.status(403).json({ error: "Wrong captcha" });
     }
 
     try {
-        const confession = await createConfession(content);
-        return res.status(201).json(confession);
+      const confession = await confessionService.createConfession(content);
+      return res.status(201).json(confession);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({error: "Something went wrong"});
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong" });
     }
-};
+  }
 
-export const listConfessions = async (_req: Request, res: Response): Promise<Response> => {
+  async getAllConfessions(_req: Request, res: Response): Promise<Response> {
     try {
-        const all = await getAllConfessions();
-        return res.json(all);
+      const all = await confessionService.getAllConfessions();
+      return res.json(all);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({error: "Something went wrong"});
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong" });
     }
-};
+  }
+}
 
+export const confessionController = new ConfessionController();

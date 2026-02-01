@@ -1,9 +1,13 @@
-import {prisma} from "../config/prismaClient";
+import { ThreadItemPayload } from "src/types/threads";
+import { threadRepository } from "src/repository/thread.repository";
 
-export const createConfessionThreadItem = async (
-    id: string,
-    content: string,
-) => {
-    return prisma.thread.create({data: {content, confessionId: id}})
+class ThreadService {
+  async createConfessionThreadItem({
+    confessionId,
+    content,
+  }: ThreadItemPayload) {
+    return threadRepository.createThreadItem({ confessionId, content });
+  }
+}
 
-};
+export const threadService = new ThreadService();
