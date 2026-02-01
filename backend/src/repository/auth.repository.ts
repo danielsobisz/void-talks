@@ -1,0 +1,42 @@
+import { prisma } from "src/config/prismaClient";
+
+type CreateUserPayload = {
+  username: string;
+  usernameNorm: string;
+  passwordHash: string;
+  recoveryHash: string;
+};
+
+class AuthRepository {
+  async createUser({
+    username,
+    usernameNorm,
+    passwordHash,
+    recoveryHash,
+  }: CreateUserPayload) {
+    return prisma.user.create({
+      data: {
+        username,
+        usernameNorm,
+        passwordHash,
+        recoveryHash,
+      },
+    });
+  }
+
+  async getAllUsers() {
+    return prisma.user.findMany();
+  }
+
+  async isUserExistByUsername(username: string): Promise<boolean> {
+    return prisma.user
+      .count({ where: { usernameNorm: username } })
+      .then((c) => c > 0);
+  }
+
+  async getUserByUsername(username: string) {
+    return prisma.user.findFirstOrThrow({ where: { usernameNorm: username } });
+  }
+}
+
+export const authRepository = new AuthRepository();
