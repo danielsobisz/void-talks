@@ -27,9 +27,11 @@ class AuthController {
   async loginUser(req: Request, res: Response): Promise<Response> {
     const { username, password } = req.body;
 
-    if (
-      await authRepository.isUserExistByUsername(username.toLocaleLowerCase())
-    ) {
+    const isUserExist = await authRepository.isUserExistByUsername(
+      username.toLocaleLowerCase(),
+    );
+
+    if (!isUserExist) {
       return res.status(400).json({ error: "Authentication failed" });
     }
 
@@ -40,7 +42,7 @@ class AuthController {
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      return res.status(400).json({ error: "Authentication failed" });
+      return res.status(400).json({ error: "Authentication failed2" });
     }
 
     const token = jwt.sign({ username }, PRIVATE_KEY, {
