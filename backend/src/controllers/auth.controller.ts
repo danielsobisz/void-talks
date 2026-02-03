@@ -5,6 +5,7 @@ import { join } from "path";
 import jwt from "jsonwebtoken";
 import { authService } from "src/services/auth.service";
 import { authRepository } from "src/repository/auth.repository";
+import { generateRefreshToken } from "src/crypto/generateRefreshToken";
 
 const PRIVATE_KEY = readFileSync(
   join(process.cwd(), "keys/jwt-private.pem"),
@@ -15,7 +16,9 @@ class AuthController {
   async registerUser(req: Request, res: Response): Promise<Response> {
     const { username, password } = req.body;
 
-    if (authRepository.isUserExistByUsername(username.toLocaleLowerCase())) {
+    if (
+      await authRepository.isUserExistByUsername(username.toLocaleLowerCase())
+    ) {
       return res.status(400).json({ error: "Username already taken" });
     }
 
@@ -45,12 +48,29 @@ class AuthController {
       return res.status(400).json({ error: "Authentication failed2" });
     }
 
-    const token = jwt.sign({ username }, PRIVATE_KEY, {
+    const accessToken = jwt.sign({ username }, PRIVATE_KEY, {
       expiresIn: "1h",
       algorithm: "RS256",
     });
 
-    return res.status(200).json({ message: "Login successfull", token });
+    const refreshToken = generateRefreshToken();
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/auth/refresh",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({ message: "Login successfull" });
   }
 }
 
