@@ -4,7 +4,10 @@ type CreateUserPayload = {
   username: string;
   usernameNorm: string;
   passwordHash: string;
-  recoveryHash: string;
+  recoveryKeyHash: string;
+  temporaryToken?: string;
+  rawKey: string;
+  expiresAt: string;
 };
 
 class AuthRepository {
@@ -12,14 +15,24 @@ class AuthRepository {
     username,
     usernameNorm,
     passwordHash,
-    recoveryHash,
+    recoveryKeyHash,
+    temporaryToken,
+    rawKey,
+    expiresAt,
   }: CreateUserPayload) {
     return prisma.user.create({
       data: {
         username,
         usernameNorm,
         passwordHash,
-        recoveryHash,
+        recoveryKeyHash,
+        temporaryToken: {
+          create: {
+            token: temporaryToken,
+            rawKey,
+            expiresAt,
+          },
+        },
       },
     });
   }

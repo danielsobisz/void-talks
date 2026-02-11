@@ -29,5 +29,16 @@ model user {
   username     String   @unique
   usernameNorm String   @unique
   passwordHash String
-  recoveryHash String   @unique
+  recoveryKeyHash String   @unique @default("")
+  isRecoverySetupDone Boolean @default(false)
+  temporaryToken temporaryDisplayToken?
+}
+
+model temporaryDisplayToken {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  token       String   @unique
+  rawKey      String   
+  expiresAt   DateTime
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

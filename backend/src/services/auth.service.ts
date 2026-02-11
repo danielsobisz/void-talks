@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
-import { generateRecoveryKey } from "src/crypto/generateRecoveryKey";
+import dayjs from "dayjs";
+import { generateRandomKey } from "src/crypto/generateRandomKey";
 import { authRepository } from "src/repository/auth.repository";
 
 type CreateUserPayload = {
@@ -9,22 +10,28 @@ type CreateUserPayload = {
 
 class AuthService {
   async createUser({ username, password }: CreateUserPayload) {
-    const passwordHash = bcrypt.hash(password, 10);
     const usernameNorm = username.toLocaleLowerCase();
-    const recoveryKey = generateRecoveryKey();
-    const recoveryHash = bcrypt.hash(recoveryKey, 10);
+    const recoveryKey = generateRandomKey();
+
+    const recoveryKeyHash = bcrypt.hash(recoveryKey, 10);
+    const passwordHash = bcrypt.hash(password, 10);
+    const recoveryExpiresAt = dayjs().add(15, "minutes").toISOString();
+    const temporaryToken = generateRandomKey();
 
     const data = await authRepository.createUser({
       username,
       usernameNorm,
-      recoveryHash: await passwordHash,
-      passwordHash: await recoveryHash,
+      recoveryKeyHash: await recoveryKeyHash,
+      passwordHash: await passwordHash,
+      rawKey: recoveryKey,
+      expiresAt: recoveryExpiresAt,
+      temporaryToken,
     });
 
     return {
       id: data.id,
+      temporaryToken,
       username: data.username,
-      recoveryKey: recoveryKey,
     };
   }
 
